@@ -17,6 +17,7 @@ class FinetuneArguments:
     dataset_path: str = field(default="data/alpaca")
     model_path: str = field(default="output")
     lora_rank: int = field(default=8)
+    retrain_model: str = field(default="")
 
 
 class CastOutputToFloat(nn.Sequential):
@@ -93,6 +94,8 @@ def main():
         lora_dropout=0.1,
     )
     model = get_peft_model(model, peft_config)
+    if finetune_args.retrain_model:
+        model.load_state_dict(torch.load(finetune_args.retrain_model), strict=False)
 
     # load dataset
     dataset = datasets.load_from_disk(finetune_args.dataset_path)

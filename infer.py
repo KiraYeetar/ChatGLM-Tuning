@@ -34,16 +34,16 @@ def main(
 
     def evaluate(
         input_text=None,
-        **kwargs,
     ):
         ids = tokenizer.encode(input_text)
         input_ids = torch.LongTensor([ids])
-        out = model.generate(
-            input_ids=input_ids,
-            max_length=150,
-            do_sample=False,
-            temperature=0
-        )
+        with torch.no_grad():
+            out = model.generate(
+                input_ids=input_ids,
+                max_length=240,
+                do_sample=False,
+                temperature=0
+            )
         out_text = tokenizer.decode(out[0])
         answer = out_text.replace(input_text, "").replace("\nEND", "").strip()
         yield answer
