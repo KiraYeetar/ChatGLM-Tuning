@@ -13,8 +13,7 @@ def main(
     lora_weights: str = "mymusise/chatGLM-6B-alpaca-lora",
     share_gradio: bool = False,
 ):
-
-    tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
+    torch.set_default_tensor_type(torch.cuda.HalfTensor)
     model = AutoModel.from_pretrained(
         base_model,
         device_map="auto",
@@ -24,13 +23,9 @@ def main(
         model,
         lora_weights
     )
+    torch.set_default_tensor_type(torch.cuda.FloatTensor)
+    tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
 
-    if not load_8bit:
-        model.half()  # seems to fix bugs for some users.
-
-    model.eval()
-    if torch.__version__ >= "2" and sys.platform != "win32":
-        model = torch.compile(model)
 
     def evaluate(
         input_text=None,
