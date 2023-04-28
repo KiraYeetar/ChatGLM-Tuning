@@ -3,6 +3,7 @@ from torch.utils.tensorboard import SummaryWriter
 from transformers import TrainingArguments
 from transformers import Trainer, HfArgumentParser
 from transformers import AutoTokenizer, AutoModel
+from transformers.configuration_utils import PretrainedConfig
 import torch
 import torch.nn as nn
 from peft import get_peft_model, LoraConfig, TaskType
@@ -17,6 +18,8 @@ class FinetuneArguments:
     dataset_path: str = field(default="data/alpaca")
     model_path: str = field(default="output")
     lora_rank: int = field(default=8)
+    lora_alpha: float = field(default=32)
+    lora_dropout: float = field(default=0.1)
     retrain_model: str = field(default="")
 
 
@@ -90,8 +93,8 @@ def main():
         task_type=TaskType.CAUSAL_LM,
         inference_mode=False,
         r=finetune_args.lora_rank,
-        lora_alpha=32,
-        lora_dropout=0.1,
+        lora_alpha=finetune_args.lora_alpha,
+        lora_dropout=finetune_args.lora_dropout,
     )
     model = get_peft_model(model, peft_config)
     if finetune_args.retrain_model:
